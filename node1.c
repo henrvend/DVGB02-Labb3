@@ -9,21 +9,32 @@ extern int NO;
 
 struct distance_table dt1;
 
-void rtinit1() {
-	for(int i = 0; i < 16; i++)
+void rtinit1()
+{
+	for (int i = 0; i < 16; i++)
 		dt1.costs[i % 4][i / 4] = 999;
 	dt1.costs[1][0] = 1;
 	dt1.costs[1][1] = 0;
 	dt1.costs[1][2] = 1;
 	dt1.costs[1][3] = 999;
 	rtinit(&dt1, 1);
+
+	struct rtpkt start_values;
+	start_values.destid = 999;
+	start_values.sourceid = 1;
+	for (int i = 0; i < 4; i++)
+	{
+		start_values.mincost[i]=dt1.costs[0][i];
+	}
+	tolayertwo(start_values);
 }
 
-void rtupdate1(struct rtpkt *rcvdpkt) {
+void rtupdate1(struct rtpkt *rcvdpkt)
+{
 	rtupdate(&dt1, 1, rcvdpkt);
 }
 
-void linkhandler1(int linkid, int newcost) {
-  /* DON'T CHANGE */
+void linkhandler1(int linkid, int newcost)
+{
+	/* DON'T CHANGE */
 }
-

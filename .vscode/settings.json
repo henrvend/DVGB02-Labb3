@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "node.h": "c",
+        "sim_engine.h": "c",
+        "stdio.h": "c"
+    }
+}
