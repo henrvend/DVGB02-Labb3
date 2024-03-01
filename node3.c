@@ -19,14 +19,6 @@ void rtinit3()
 	dt3.costs[3][3] = 0;
 	rtinit(&dt3, 3);
 
-	struct rtpkt start_values;
-	start_values.destid = 999;
-	start_values.sourceid = 3;
-	for (int i = 0; i < 4; i++)
-	{
-		start_values.mincost[i]=dt3.costs[0][i];
-	}
-	tolayertwo(start_values);
 }
 
 void rtupdate3(struct rtpkt *rcvdpkt)
