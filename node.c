@@ -26,11 +26,11 @@ void rtupdate(struct distance_table *table, int node, struct rtpkt *pkt)
 
     bool changed = false;
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < sizeof(pkt->mincost)/sizeof(pkt->mincost[0]); i++)
     {
-        if ((pkt->mincost[i] + pkt->mincost[node] < table->costs[node][i])&& i!=node)
+        if ((pkt->mincost[i] + table->costs[i][node] < table->costs[node][i])/*&& i!=node*/)
         {
-            table->costs[node][i] = pkt->mincost[i] + pkt->mincost[node];
+            table->costs[node][i] = pkt->mincost[i] + table->costs[i][node];
             changed = true;
         }
     }
