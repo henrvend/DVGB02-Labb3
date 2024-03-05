@@ -6,32 +6,37 @@ void rtinit(struct distance_table *table, int node)
     printdt(table, node);
 
     struct rtpkt pkt;
-    pkt.sourceid = node;
 
+    pkt.sourceid = node;
     for (int i = 0; i < 4; i++)
     {
         if (is_neighbor(node, i))
         {
             pkt.destid = i;
-            pkt.mincost[i] = table->costs[node][i];
+            for (int j = 0; j < 4; j++)
+            {
+                pkt.mincost[j] = table->costs[node][j];
+            }
+
             tolayer2(pkt);
         }
     }
-
-    // rtupdate(table, node, &pkt);
 }
 
 void rtupdate(struct distance_table *table, int node, struct rtpkt *pkt)
 {
 
     bool changed = false;
-
-    for (int i = 0; i < sizeof(pkt->mincost)/sizeof(pkt->mincost[0]); i++)
+    int mincost;
+    for (int i = 0; i < 4; i++)
     {
-        if ((pkt->mincost[i] + table->costs[i][node] < table->costs[node][i])/*&& i!=node*/)
+        if (is_neighbor(pkt->sourceid, i))
         {
-            table->costs[node][i] = pkt->mincost[i] + table->costs[i][node];
-            changed = true;
+            if ((pkt->mincost[i] + table->costs[node][pkt->sourceid] < table->costs[node][i]))
+            {
+                table->costs[node][i] = pkt->mincost[i] + table->costs[node][pkt->sourceid];
+                changed = true;
+            }
         }
     }
 
@@ -40,11 +45,18 @@ void rtupdate(struct distance_table *table, int node, struct rtpkt *pkt)
         struct rtpkt update_pkt;
         update_pkt.sourceid = node;
         for (int i = 0; i < 4; i++)
-        {           
+        {
+            if (is_neighbor(node, i))
+            {
                 update_pkt.destid = i;
-                update_pkt.mincost[i] = table->costs[node][i];
-                
-        }tolayer2(update_pkt);
+                for (int j = 0; j < 4; j++)
+                {
+                    update_pkt.mincost[j] = table->costs[node][j];
+                }
+
+                tolayer2(update_pkt);
+            }
+        }
+        printdt(table, node);
     }
-    printdt(table, node);
 }
