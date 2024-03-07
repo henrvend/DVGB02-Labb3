@@ -28,14 +28,21 @@ void rtupdate(struct distance_table *table, int node, struct rtpkt *pkt)
 
     bool changed = false;
     int mincost;
+
+    //printf("\n\nsourceid: %d, destid: %d, node: %d\n\n", pkt->sourceid, pkt->destid, node);
     for (int i = 0; i < 4; i++)
     {
-        if (is_neighbor(pkt->sourceid, i))
+        if (is_neighbor(node, i))
         {
-            if ((pkt->mincost[i] + table->costs[node][pkt->sourceid] < table->costs[node][i]))
+           
+            for (int j = 0; j < 4; j++)
             {
-                table->costs[node][i] = pkt->mincost[i] + table->costs[node][pkt->sourceid];
-                changed = true;
+                if ((table->costs[i][j] > pkt->mincost[i] + pkt->mincost[j]))
+                {
+                    table->costs[i][j] = pkt->mincost[i] + pkt->mincost[j];
+                    table->costs[j][i] = table->costs[i][j];
+                    changed = true;
+                }
             }
         }
     }
@@ -51,7 +58,7 @@ void rtupdate(struct distance_table *table, int node, struct rtpkt *pkt)
                 update_pkt.destid = i;
                 for (int j = 0; j < 4; j++)
                 {
-                    update_pkt.mincost[j] = table->costs[node][j];
+                    update_pkt.mincost[j] = table->costs[node][i];
                 }
 
                 tolayer2(update_pkt);
