@@ -5,13 +5,12 @@ void rtinit(struct distance_table *table, int node)
     // Tables are already initialized
     printdt(table, node);
 
-    struct rtpkt pkt;
-
-    pkt.sourceid = node;
     for (int i = 0; i < 4; i++)
     {
         if (is_neighbor(node, i))
-        {
+        {   
+            struct rtpkt pkt;
+            pkt.sourceid = node;
             pkt.destid = i;
             for (int j = 0; j < 4; j++)
             {
@@ -27,43 +26,29 @@ void rtupdate(struct distance_table *table, int node, struct rtpkt *pkt)
 {
 
     bool changed = false;
-    int mincost;
 
-    //printf("\n\nsourceid: %d, destid: %d, node: %d\n\n", pkt->sourceid, pkt->destid, node);
     for (int i = 0; i < 4; i++)
     {
-        if (is_neighbor(node, i))
+
+        for (int j = 0; j < 4; j++)
         {
-           
-            for (int j = 0; j < 4; j++)
+            if (table->costs[pkt->sourceid][i] == INF)
             {
-                if ((table->costs[i][j] > pkt->mincost[i] + pkt->mincost[j]))
-                {
-                    table->costs[i][j] = pkt->mincost[i] + pkt->mincost[j];
-                    table->costs[j][i] = table->costs[i][j];
-                    changed = true;
-                }
+                table->costs[pkt->sourceid][i] = pkt->mincost[i];
+                changed = true;
+            }
+
+            if ((table->costs[i][j] > table->costs[i][pkt->sourceid] + pkt->mincost[j]))
+            {
+                table->costs[i][j] = pkt->mincost[j] + table->costs[i][pkt->sourceid];
+                changed = true;
             }
         }
     }
 
     if (changed)
     {
-        struct rtpkt update_pkt;
-        update_pkt.sourceid = node;
-        for (int i = 0; i < 4; i++)
-        {
-            if (is_neighbor(node, i))
-            {
-                update_pkt.destid = i;
-                for (int j = 0; j < 4; j++)
-                {
-                    update_pkt.mincost[j] = table->costs[node][i];
-                }
-
-                tolayer2(update_pkt);
-            }
-        }
+        rtinit(table, node);
         printdt(table, node);
     }
 }
