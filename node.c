@@ -4,22 +4,7 @@ void rtinit(struct distance_table *table, int node)
 {
     // Tables are already initialized
     printdt(table, node);
-
-    for (int i = 0; i < 4; i++)
-    {
-        if (is_neighbor(node, i))
-        {
-            struct rtpkt pkt;
-            pkt.sourceid = node;
-            pkt.destid = i;
-            for (int j = 0; j < 4; j++)
-            {
-                pkt.mincost[j] = table->costs[node][j];
-            }
-
-            tolayer2(pkt);
-        }
-    }
+    broadcast(table, node);
 }
 
 void rtupdate(struct distance_table *table, int node, struct rtpkt *pkt)
@@ -47,20 +32,26 @@ void rtupdate(struct distance_table *table, int node, struct rtpkt *pkt)
 
     if (changed)
     {
-        for (int i = 0; i < 4; i++)
-        {
-            if (is_neighbor(node, i))
-            {
-                struct rtpkt pkt;
-                pkt.sourceid = node;
-                pkt.destid = i;
-                for (int j = 0; j < 4; j++)
-                {
-                    pkt.mincost[j] = table->costs[node][j];
-                }
-                tolayer2(pkt);
-            }
-        }
+        broadcast(table, node);
         printdt(table, node);
+    }
+}
+
+void broadcast(struct distance_table *table, int node)
+{
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (is_neighbor(node, i))
+        {
+            struct rtpkt pkt;
+            pkt.sourceid = node;
+            pkt.destid = i;
+            for (int j = 0; j < 4; j++)
+            {
+                pkt.mincost[j] = table->costs[node][j];
+            }
+            tolayer2(pkt);
+        }
     }
 }
